@@ -3,6 +3,9 @@
 from room import Room
 from player import Player
 from world import World
+#learning amazing tools are super useful for starting situations, and will help get me the target result. Using graph and util from Graph repo
+from graph import Graph
+from util import Queue
 
 import random
 
@@ -24,6 +27,16 @@ player = Player("Name", world.startingRoom)
 
 # FILL THIS IN
 traversalPath = ['n', 's']
+#just like the test, going to have player set to the beginning node
+player.currentRoom = world.startingRoom
+#Making a graph, using existing tools
+graph = Graph()
+#Here is te beginning node
+graph.add_vertex(0)
+# You start in room 0, which contains exits ['n', 's', 'w', 'e']
+# So I want to show_exits
+#making it empty to fill later!
+show_exits = {}
 
 
 # TRAVERSAL TEST
