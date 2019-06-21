@@ -24,20 +24,57 @@ world.loadGraph(roomGraph)
 world.printRooms()
 player = Player("Name", world.startingRoom)
 
-
 # FILL THIS IN
 traversalPath = ['n', 's']
+
 #just like the test, going to have player set to the beginning node
 player.currentRoom = world.startingRoom
+
 #Making a graph, using existing tools
 graph = Graph()
+
 #Here is te beginning node
 graph.add_vertex(0)
+
 # You start in room 0, which contains exits ['n', 's', 'w', 'e']
 # So I want to show_exits
 #making it empty to fill later!
 show_exits = {}
 
+#I want to show all exits in the current room.
+exits = player.currentRoom.getExits()
+
+#a nice loop to make sure it will scan for every time the player moves.
+#search for a room with a '?' for an exit.
+for exit in exits:
+    show_exits[exit] = '?'
+
+#when exits are found, it will add them as edges to the graph.
+graph.add_edge(0, show_exits)
+
+#I want to use randomization as the searching tool for the entirety(length) of the graph.
+while len(roomGraph):
+
+    #using placeholders to interchange space while executing operations
+    #lets state id of room
+    tardis = player.currentRoom.id
+
+    #using the for exit, I can now search for exits from the current location.
+    exits = graph.vertices[tardis]
+
+    #I want to find the unexplored rooms and create a container for them
+    unknown_room = []
+
+    #creating the paths to these mystery rooms
+    for path in exits:
+        if exits[path] == '?':
+            unknown_room.append(path)
+
+    #now to start using the random method
+    random_path = ''        
+
+#I want to see where I am going!!!
+print(f'PATH: {traversalPath}')
 
 # TRAVERSAL TEST
 visited_rooms = set()
