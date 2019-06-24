@@ -1,8 +1,13 @@
+#project start
+
 from room import Room
 from player import Player
 from world import World
+#learning amazing tools are super useful for starting situations, and will help get me the target result. Using graph and util from Graph repo
+from graph import Graph
+from util import Queue
 
-import random
+from random import randint
 
 # Load world
 world = World()
@@ -19,10 +24,124 @@ world.loadGraph(roomGraph)
 world.printRooms()
 player = Player("Name", world.startingRoom)
 
-
 # FILL THIS IN
-traversalPath = ['n', 's']
 
+#I want tp utilize a different way of directions, so I leave the original navigation empty
+traversalPath = []
+
+#using the inverse method of navigation, essentially a list insie a list for double the functionality!
+mirrored_exits = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'} 
+
+#just like the test, going to have player set to the beginning node
+player.currentRoom = world.startingRoom
+
+#Making a graph, using existing tools
+graph = Graph()
+
+#Here is te beginning node
+graph.add_vertex(0)
+
+# You start in room 0, which contains exits ['n', 's', 'w', 'e']
+# So I want to show_exits
+#making it empty to fill later!
+show_exits = {}
+
+#I want to show all exits in the current room.
+exits = player.currentRoom.getExits()
+
+#a nice loop to make sure it will scan for every time the player moves.
+#search for a room with a '?' for an exit.
+for exit in exits:
+    show_exits[exit] = '?'
+
+#when exits are found, it will add them as edges to the graph.
+graph.add_edge(0, show_exits)
+
+#I want to use randomization as the searching tool for the entirety(length) of the graph.
+while len(roomGraph):
+
+    #using placeholders to interchange space while executing operations
+    #lets state id of room
+    tardis = player.currentRoom.id
+
+    #using the for exit, I can now search for exits from the current location.
+    exits = graph.vertices[tardis]
+
+    #I want to find the unexplored rooms and create a container for them
+    unknown_room = []
+
+    #creating the paths to these mystery rooms
+    for path in exits:
+        if exits[path] == '?':
+            unknown_room.append(path)
+
+    #now to start using the random method
+    random_path = ''
+
+    #With the advent of unknown pathways and exits, using random to explore
+    if len(unknown_room):
+        random_path = unknown_room[randint(0, len(unknown_room) -1)]
+
+        #now to use the BFS formulae to find themm!
+    else:
+        unknown_path = graph.bfs(tardis)
+        if unknown_path:
+            for room in unknown_path:
+
+                #mapping from current location
+                current = player.currentRoom.id
+
+                #when finding availiable paths, lets be aware of the exits!
+                open_path = player.currentRoom.getExits()
+
+                    #found an exit, lets find a room!
+                for exit in open_path:
+                    if room == graph.vertices[current][exit]:
+
+                         #this is where i can use the now emptied navigation as another placeholder to hold exits
+                        traversalPath.append(exit)
+
+                        #now lets move the player!
+                        player.travel(exit)
+
+            continue 
+
+        #BFS is done
+        else:
+            break
+
+    #to the next random room!        
+    player.travel(random_path)
+
+    #I love this empty list which is basically the players record of travel
+    #now i can add the random path
+    traversalPath.append(random_path)
+
+    #tardis warp point, new room         
+    warp_point = player.currentRoom.id
+
+    #wherever the tardis was, can now be warp points
+    graph.vertices[tardis][random_path] = warp_point
+
+    #add in new warp points to fill in the void
+    if warp_point not in graph.vertices:
+        graph.add_vertex(warp_point)
+
+        #adding edges to open exits
+        show_exits = {}
+
+        #lets add those exits!
+        exits = player.currentRoom.getExits()
+        for exit in exits:
+            show_exits[exit] = '?'
+
+        graph.add_edge(warp_point, show_exits)    
+
+    #previously explored rooms will get edged on and tracked with the inverse directions coming from the tardis location
+    graph.vertices[warp_point][mirrored_exits[random_path]] = tardis
+
+#I want to see where I am going!!!
+print(f'PATH: {traversalPath}')
 
 # TRAVERSAL TEST
 visited_rooms = set()
